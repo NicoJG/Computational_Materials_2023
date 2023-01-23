@@ -1,3 +1,7 @@
+data/
+plots/
+.vscode/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
