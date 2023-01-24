@@ -21,10 +21,11 @@ def qprqs(alpha1,alpha2,alpha3,alpha4):
     qprqs = 2*np.pi**(5/2)/((alpha1+alpha3)*(alpha2*alpha4)*np.sqrt(alpha1+alpha2+alpha3+alpha4))
     return qprqs
 
-def normalize_vec(vector):
-    normalizationsum = vector @ s_matrix @ vector.T
-    vector = vector/np.sqrt(normalizationsum)
-    return vector
+def normalize_vec(c_vector):
+    normalization = np.sum(s_matrix*c_vector.reshape((-1,1))*c_vector.reshape((1,-1)))
+    #normalizationsum = c_vector @ s_matrix @ c_vector.T
+    c_vector = c_vector/np.sqrt(normalization)
+    return c_vector
 
 
 # Optimal values 
@@ -58,7 +59,7 @@ for i in range(len(q_matrix)):
 
 # initialize  C-vector and eigenvaluevector
 c_vec = np.ones((1,4))
-c_vec=normalize_vec(c_vec)
+c_vec = normalize_vec(c_vec)
 eg_vec = np.array([0])
 
 for i in range(10):
@@ -83,7 +84,7 @@ for i in range(10):
     eigenvalues, eigenvectors = np.linalg.eig(np.linalg.inv(s_matrix)@f_matrix)
     min_index = np.argmin(eigenvalues)
     c_vec = eigenvectors[:,min_index].reshape((1,4))
-    c_vec=normalize_vec(c_vec)
+    c_vec = normalize_vec(c_vec)
     #print(np.sum(s_matrix*c_vec.reshape(-1,1)*c_vec.reshape(1,-1)))
     # Get ground state energy
 
@@ -102,6 +103,15 @@ for i in range(10):
 print(eg_vec[-1])
 
 # %%
-
+# plot the energy history
 plt.plot(eg_vec)
+
+# %%
+# plot the wavefunction
+r = np.linspace(0,10,1000)
+
+psi = np.sum([c_vec[0,i]*np.exp(-alphas[i]*r**2) for i in range(4)], axis=0)
+
+plt.plot(r,psi)
+
 # %%
