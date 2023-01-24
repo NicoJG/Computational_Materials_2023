@@ -39,9 +39,9 @@ def solve_kohn_sham_eq(r, V_H):
 
 # initialize the grid
 n_r = 1000
-r_min = 1e-3
+r_min = 0.
 r_max = 10.
-r = np.linspace(r_min, r_max, n_r)
+r = np.linspace(r_min, r_max, n_r+1)[1:]
 
 # initially choose the hydrogen ground state
 u0 = 2*r*np.exp(-r)
@@ -59,13 +59,14 @@ for i in tqdm(range(n_iter)):
     u_arr.append(u)
 
 E_arr = np.array(E_arr)
-    
+
 # %%
 plt.plot(E_arr)
+print(E_arr[-1])
 # %%
 plt.clf()
-plt.plot(r,u0)
+plt.plot(r,u0/(np.sqrt(4*np.pi)*r))
 for i in range(5):
-    plt.plot(r, u_arr[i])
+    plt.plot(r, u_arr[i]/(np.sqrt(4*np.pi)*r))
 
 # %%

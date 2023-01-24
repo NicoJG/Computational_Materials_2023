@@ -3,11 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # %%
-n_r = 10000
+n_r = 1000
 r_min = 0.
 r_max = 10
 
-r = np.linspace(r_min, r_max, n_r)
+r = np.linspace(r_min, r_max, n_r+1)[:1]
+
 dr = np.diff(r)[0]
 
 f = -4*r*np.exp(-2*r)
@@ -24,12 +25,13 @@ U_exact = V_H_exact*r - r/r_max
 
 plt.figure(figsize=(5,4))
 plt.plot(r,V_H_solve, label="numerical solution solve")
-plt.plot(r,V_H_exact, label="exact")
+plt.plot(r,V_H_exact, "--", label="exact")
 plt.xlabel(r"$r \: / \:$atomic units")
 plt.ylabel(r"$V_H \: / \:$atomic units")
 plt.ylim(0,1.25)
 plt.grid()
 plt.legend()
-plt.savefig("plots/task2.pdf")
+plt.show()
+#plt.savefig("plots/task2.pdf")
 
 # %%
