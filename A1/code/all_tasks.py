@@ -7,6 +7,8 @@ import os
 if os.path.basename(os.getcwd()) == "code":
     os.chdir("..")
     print("Changed working directory!")
+    
+hartree_energy = 27.211386245988 # eV
 
 # %%
 ###################################
@@ -139,7 +141,7 @@ plt.savefig("plots/task3.pdf")
 def calc_E0_from_eigenvalue(E,u,r,V_H):
     return 2*E - 2*np.trapz(u**2*0.5*V_H, r)
 
-def solve_helium_kohn_sham_eq(r, u0, eps, n_max_iter=100):
+def solve_helium_kohn_sham_eq(r, u0, eps, n_max_iter=20):
     n_r = len(r)
     r_max = r[-1]
     dr = r[1]-r[0]
@@ -147,7 +149,7 @@ def solve_helium_kohn_sham_eq(r, u0, eps, n_max_iter=100):
     n_max_iter = 100
     E_arr = []
     u_arr = []
-    for i in tqdm(range(n_max_iter), desc=f"n_r = {n_r};\ndr = {dr:.2e};\nr_max = {r_max:.2f}", leave=False):
+    for i in range(n_max_iter):
         V_sH = solve_for_V_sH(r, u)
         V_H = V_sH
         potential = -2/r + V_H
@@ -157,16 +159,16 @@ def solve_helium_kohn_sham_eq(r, u0, eps, n_max_iter=100):
         if len(E_arr)>1:
             if abs(E_arr[-1]-E_arr[-2]) < eps:
                 return E_arr, u_arr, i
-                break
 
 # %%
 # Task 4 calculations
-eps = 1e-5
-n_max_iter1 = 100
-n_max_iter2 = 100
+eps_kohn_sham = 1e-5 * hartree_energy # eV
+eps_grid_spacing = 1e-4 * hartree_energy # eV
+n_max_iter1 = 20
+n_max_iter2 = 20
 
 # initial grid
-dr = 0.01
+dr = 0.1
 r_min = 0.
 r_max = 2.
 r = np.arange(r_min, r_max+dr, dr) # so that r_max is included
@@ -174,43 +176,63 @@ r = np.arange(r_min, r_max+dr, dr) # so that r_max is included
 # initially choose the hydrogen ground state
 u0 = 2*r*np.exp(-r)
 
-E_arr, u_arr, i_max = solve_helium_kohn_sham_eq(r,u0, eps)
+E_arr, u_arr, i_max = solve_helium_kohn_sham_eq(r,u0, eps_kohn_sham)
 r_max_arr = [r_max]
 E_arr_arr = [E_arr]
 i_arr = [i_max]
 
-for i in tqdm(range(n_max_iter1)):
+pbar = tqdm(range(n_max_iter1))
+for i in pbar:
     r_max *= 1.5
     r = np.arange(r_min, r_max+dr, dr)
+    n_r = len(r)
+    pbar.set_description(f"r_max = {r_max:.1f}; n_r = {n_r}")
     u0 = 2*r*np.exp(-r)
-    E_arr, u_arr, i_max = solve_helium_kohn_sham_eq(r, u0, eps)
+    E_arr, u_arr, i_max = solve_helium_kohn_sham_eq(r, u0, eps_kohn_sham)
     r_max_arr.append(r_max)
     E_arr_arr.append(E_arr)
     i_arr.append(i_max)
-    if abs(E_arr_arr[-1][-1]-E_arr_arr[-2][-1]) < eps:
+    if abs(E_arr_arr[-1][-1]-E_arr_arr[-2][-1]) < eps_grid_spacing:
         break
     
 dr_arr = [dr]
-for i in tqdm(range(n_max_iter2)):
+pbar = tqdm(range(n_max_iter2))
+for i in pbar:
     dr /= 1.5
     r = np.arange(r_min, r_max+dr, dr)
+    n_r = len(r)
+    pbar.set_description(f"r_max = {r_max:.1f}; n_r = {n_r}")
     u0 = 2*r*np.exp(-r)
-    E_arr, u_arr, i_max = solve_helium_kohn_sham_eq(r, u0, eps)
+    E_arr, u_arr, i_max = solve_helium_kohn_sham_eq(r, u0, eps_kohn_sham)
     dr_arr.append(dr)
     E_arr_arr.append(E_arr)
     i_arr.append(i_arr)
-    if abs(E_arr_arr[-1][-1]-E_arr_arr[-2][-1]) < eps:
+    if abs(E_arr_arr[-1][-1]-E_arr_arr[-2][-1]) < eps_grid_spacing:
         break
     
 # %%
 # Task 4 plotting
-E_arr_arr = np.array(E_arr_arr)
+E_arr = np.array([Es[-1] for Es in E_arr_arr])
 
 # plot E progression
 plt.figure(figsize=(5,4))
-plt.plot(E_arr_arr[:,-1])
+plt.plot(E_arr)
+plt.axvline(len(r_max_arr)-1, linestyle="--", color="k", alpha=0.5)
+plt.xlabel("run index")
+plt.ylabel(r"$E_0 \: / \:$atomic units")
 plt.show()
 
+plt.figure(figsize=(5,4))
+plt.plot(r_max_arr)
+plt.xlabel("run index")
+plt.ylabel(r"$r_{max}$")
+plt.show()
+
+plt.figure(figsize=(5,4))
+plt.plot(np.arange(len(r_max_arr)-1,len(E_arr)), dr_arr)
+plt.xlabel("run index")
+plt.ylabel(r"$r_{max}$")
+plt.show()
 # %%
 E_arr = np.array(E_arr)
 abs(E_arr[-1]-E_arr[-2])# %%
