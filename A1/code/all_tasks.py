@@ -35,7 +35,7 @@ def solve_for_V_sH(r, u):
     A[-1,-2] = 0
     
     U_0 = np.linalg.solve(A,f)
-    V_sH = np.zeros_like(r)
+    V_sH = np.ones_like(r)
     V_sH[mask] = (U_0[mask]+r[mask]/r_max)/r[mask]
     return V_sH
 
@@ -146,10 +146,9 @@ def solve_helium_kohn_sham_eq(r, u0, eps, n_max_iter=20):
     r_max = r[-1]
     dr = r[1]-r[0]
     u = u0
-    n_max_iter = 100
     E_arr = []
     u_arr = []
-    for i in range(n_max_iter):
+    for i in tqdm(range(n_max_iter),leave=False):
         V_sH = solve_for_V_sH(r, u)
         V_H = V_sH
         potential = -2/r + V_H
@@ -157,13 +156,14 @@ def solve_helium_kohn_sham_eq(r, u0, eps, n_max_iter=20):
         E_arr.append(calc_E0_from_eigenvalue(E,u,r,V_H))
         u_arr.append(u)
         if len(E_arr)>1:
-            if abs(E_arr[-1]-E_arr[-2]) < eps:
+            if abs(E_arr[-1]-E_arr[-2])*hartree_energy < eps:
                 return E_arr, u_arr, i
 
 # %%
 # Task 4 calculations
 eps_kohn_sham = 1e-5 * hartree_energy # eV
-eps_grid_spacing = 1e-4 * hartree_energy # eV
+eps_r_max = 1e-5 * hartree_energy
+eps_dr = 1e-2
 n_max_iter1 = 20
 n_max_iter2 = 20
 
@@ -192,7 +192,7 @@ for i in pbar:
     r_max_arr.append(r_max)
     E_arr_arr.append(E_arr)
     i_arr.append(i_max)
-    if abs(E_arr_arr[-1][-1]-E_arr_arr[-2][-1]) < eps_grid_spacing:
+    if abs(E_arr_arr[-1][-1]-E_arr_arr[-2][-1]) < eps_r_max:
         break
     
 dr_arr = [dr]
@@ -201,13 +201,13 @@ for i in pbar:
     dr /= 1.5
     r = np.arange(r_min, r_max+dr, dr)
     n_r = len(r)
-    pbar.set_description(f"r_max = {r_max:.1f}; n_r = {n_r}")
+    pbar.set_description(f"dr = {dr:.1f}; n_r = {n_r}")
     u0 = 2*r*np.exp(-r)
     E_arr, u_arr, i_max = solve_helium_kohn_sham_eq(r, u0, eps_kohn_sham)
     dr_arr.append(dr)
     E_arr_arr.append(E_arr)
     i_arr.append(i_arr)
-    if abs(E_arr_arr[-1][-1]-E_arr_arr[-2][-1]) < eps_grid_spacing:
+    if abs(E_arr_arr[-1][-1]-E_arr_arr[-2][-1]) < eps_dr:
         break
     
 # %%
