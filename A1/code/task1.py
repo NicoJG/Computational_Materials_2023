@@ -132,7 +132,7 @@ plt.plot(eg_vec)
 #fig.savefig('convergence_5it.pdf')
 
 # Wavefunction
-radie = np.linspace(0,4)
+radie = np.linspace(0,4,1000)
 wavefunc = wavefunction(alphas, c_vec, radie)*-1
 
 fig, ax = plt.subplots()
@@ -239,7 +239,7 @@ plt.plot(eg_vec50)
 #fig.savefig('convergence_50it.pdf')
 
 # Wavefunction
-radie = np.linspace(0,4)
+radie = np.linspace(0,4,1000)
 wavefunc50 = wavefunction(alphas, c_vec50, radie)*-1
 
 fig, ax = plt.subplots()
