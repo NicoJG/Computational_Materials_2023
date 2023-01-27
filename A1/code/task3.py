@@ -7,10 +7,10 @@ plt.rcParams.update({
 })
 # %%
 n_r = 1000
-r_min = 1e-3
+r_min = 0.
 r_max = 10.
 
-r = np.linspace(r_min, r_max, n_r)
+r = np.linspace(r_min, r_max, n_r+1)[1:]
 dr = np.diff(r)[0]
 
 A = 1/dr**2*(np.diag(-2*np.ones(n_r), 0) \

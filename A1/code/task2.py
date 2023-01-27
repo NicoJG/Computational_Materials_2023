@@ -8,11 +8,12 @@ plt.rcParams.update({
 
 
 # %%
-n_r = 10000
+n_r = 1000
 r_min = 0.
 r_max = 10
 
-r = np.linspace(r_min, r_max, n_r)
+r = np.linspace(r_min, r_max, n_r+1)[:1]
+
 dr = np.diff(r)[0]
 
 f = -4*r*np.exp(-2*r)
