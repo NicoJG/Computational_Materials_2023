@@ -6,7 +6,8 @@ from tqdm.auto import tqdm
 # For latex interpretation of the figures
 plt.rcParams.update({
     "text.usetex": True,
-    "font.family": "Computer Modern"
+    "font.family": "Computer Modern",
+    "font.size": 14.0
 })
 
 import os
@@ -67,6 +68,7 @@ V_H_exact = 1/r - (1+1/r)*np.exp(-2*r)
 # %%
 # Task 2 plotting
 
+plt.figure()
 plt.plot(r,V_H, label="Numerical solution")
 plt.plot(r,V_H_exact, "--", label="Exact ")
 plt.xlabel("Radius (a.u.)",fontsize=14)
@@ -75,7 +77,8 @@ plt.title("Potential comparison ",fontsize=16)
 plt.ylim(0,1.1)
 plt.grid()
 plt.legend()
-plt.savefig("Figures/task2/task2potential.pdf")
+plt.tight_layout()
+plt.savefig("plots/task2potential.pdf")
 #TODO: plot the difference to the exact potential
 
 # %%
@@ -145,7 +148,8 @@ plt.title("Comparison of numerical wave function for hydrogen",fontsize=16)
 plt.ylim(-0.1,0.7)
 plt.grid()
 plt.legend()
-plt.savefig("Figures/task3/task3_wavefunc.pdf")
+plt.tight_layout()
+plt.savefig("plots/task3_wavefunc.pdf")
 
 
 # %%
@@ -316,12 +320,12 @@ def plot_task456_progression(task_i, E_arr, E0_arr, r_max_arr, dr_arr, u, r):
     i_iter_r_max = np.arange(n_iter_r_max)
     i_iter_dr = np.arange(n_iter_r_max-1,n_iter)
     # plot E0 progression
-    plt.figure(figsize=(5,4))
+    plt.figure()
     plt.plot(i_iter, E0_arr)
     plt.axvline(n_iter_r_max-1, linestyle=":", color="k", alpha=0.5, label="$r_{max}$ is converged")
     plt.axhline(E0_arr[-1], linestyle="--", color="k", alpha=0.5, label=f"$E0 = {E0_arr[-1]:.5f} \\: / \\:$a.u.")
-    plt.xlabel("run index")
-    plt.ylabel(r"$E$ (a.u.)")
+    plt.xlabel("procedure iteration",fontsize=14)
+    plt.ylabel(r"$E$ (a.u.)",fontsize=14)
     plt.legend()
     plt.grid()
     plt.tight_layout()
@@ -332,7 +336,7 @@ def plot_task456_progression(task_i, E_arr, E0_arr, r_max_arr, dr_arr, u, r):
     
     ax1.plot(i_iter_r_max, r_max_arr, "C0")
     ax1.plot(i_iter_dr, [r_max_arr[-1]]*n_iter_dr, "C0")
-    ax1.set_xlabel("run index")
+    ax1.set_xlabel("procedure iteration",fontsize=14)
     ax1.set_ylabel(r"$r_{max}$ (a.u.)")
     ax1.grid()
     ax1.tick_params(axis='y', labelcolor="C0")
@@ -341,7 +345,7 @@ def plot_task456_progression(task_i, E_arr, E0_arr, r_max_arr, dr_arr, u, r):
     ax2.plot(i_iter_r_max, [dr_arr[0]]*n_iter_r_max, "C1")
     ax2.axvline(len(r_max_arr)-1, linestyle=":", color="k", alpha=0.5, label="$r_{max}$ is converged")
     ax2.legend()
-    ax2.set_xlabel("run index")
+    ax2.set_xlabel("procedure iteration")
     ax2.set_ylabel(r"$\Delta r$ (a.u.)")
     ax2.grid()
     ax2.tick_params(axis='y', labelcolor="C1")
@@ -370,7 +374,7 @@ psi5 = calc_psi_from_u(r5,u5)
 psi6 = calc_psi_from_u(r6,u6)
 
 # %%
-plt.figure(figsize=(5,4))
+plt.figure()
 plt.plot(r4,psi4, label="Task 4")
 plt.plot(r5,psi5, label="Task 5")
 plt.plot(r6,psi6, "--", label="Task 6")
@@ -383,3 +387,4 @@ plt.tight_layout()
 plt.savefig("plots/task456_wavefunction.pdf")
 
 # %%
+
