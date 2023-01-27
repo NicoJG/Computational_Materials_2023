@@ -3,6 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm.auto import tqdm
 
+# For latex interpretation of the figures
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "Computer Modern"
+})
+
 import os
 if os.path.basename(os.getcwd()) == "code":
     os.chdir("..")
@@ -41,7 +47,7 @@ def solve_for_V_sH(r, u):
 
 # %%
 # Task 2 calculation
-n_r = 1000
+n_r = 2000
 r_min = 0.
 r_max = 10
 r = np.linspace(r_min, r_max, n_r)
@@ -55,16 +61,16 @@ V_H_exact = 1/r - (1+1/r)*np.exp(-2*r)
 
 # %%
 # Task 2 plotting
-plt.figure(figsize=(5,4))
-plt.plot(r,V_H, label="numerical solution")
-plt.plot(r,V_H_exact, "--", label="exact")
-plt.xlabel(r"$r \: / \:$a.u.")
-plt.ylabel(r"$V_H \: / \:$a.u.")
+
+plt.plot(r,V_H, label="Numerical solution")
+plt.plot(r,V_H_exact, "--", label="Exact ")
+plt.xlabel("Radius (a.u.)",fontsize=14)
+plt.ylabel("$V_H$ (a.u.)",fontsize=14)
+plt.title("Potential comparison ",fontsize=16)
 plt.ylim(0,1.1)
 plt.grid()
 plt.legend()
-plt.show()
-plt.savefig("plots/task2.pdf")
+plt.savefig("Figures/task2/task2potential.pdf")
 #TODO: plot the difference to the exact potential
 
 # %%
@@ -116,22 +122,25 @@ dr = np.diff(r)
 potential = -1/r
 
 E, u = solve_kohn_sham_eq(r, potential)
-psi = calc_psi_from_u(r,u)
 
+psi = calc_psi_from_u(r,u)
+E0 = E
+E0_exact= -13.6/hartree_energy
 psi_exact = 1/np.sqrt(np.pi)*np.exp(-r)
 
 # %%
 # Task 3 plotting
-plt.figure(figsize=(5,4))
-plt.plot(r,psi_exact, label="psi exact")
-plt.plot(r,psi, label=f"psi numerical")
-plt.xlabel(r"$r \: / \:$a.u.")
-plt.ylabel(r"$\Psi \: / \:$a.u.")
+plt.figure()
+plt.plot(r,psi_exact, label="$\Psi_{exact}$  ")
+plt.plot(r,psi, label="$\Psi_{numerical}$ ")
+plt.xlabel("Radius (a.u.)",fontsize=14)
+plt.ylabel("$\Psi(r)$ (a.u.)",fontsize=14)
+plt.title("Comparison of numerical wave function for hydrogen",fontsize=16)
 plt.ylim(-0.1,0.7)
 plt.grid()
 plt.legend()
-plt.show()
-plt.savefig("plots/task3.pdf")
+plt.savefig("Figures/task3/task3_wavefunc.pdf")
+
 
 # %%
 #########################
