@@ -1,6 +1,11 @@
 # %% 
 import numpy as np
 import matplotlib.pyplot as plt
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "Computer Modern"
+})
+
 # %% 
 
 # Functions
@@ -60,12 +65,15 @@ print("Q")
 print(q_matrix[1][3])
 
 
-# initialize  C-vector and eigenvaluevector
+# initialize  C-vector, eigenvaluevector and difference
 c_vec = np.ones((1,4))
 c_vec=normalize_vec(c_vec)
 eg_vec = np.array([0])
+eg_diff = 1
+eg_old = 1
+i=0
+while eg_diff > 10**(-5):
 
-for i in range(1000):
     
     # some broadcasting magic to get the sum 
 
@@ -73,35 +81,31 @@ for i in range(1000):
     q_matrix_sum1=np.sum(q_matrix_sum1,axis=1)  
     q_matrix_sum1=np.sum(q_matrix_sum1,axis=2)
 
-    #q_matrix_sum1 = np.zeros((4,4))
-    #for r in range(4):
-    #    for s in range(4):
-    #        q_matrix_sum1 += q_matrix[:,r,:,s]*c_vec[0,r]*c_vec[0,s]
-    
-
     # Get  matrix
     f_matrix = h_matrix + q_matrix_sum1
 
     # Solve generalized eigenvalue problem and obtain eigenvector
     
     eigenvalues, eigenvectors = np.linalg.eig(np.linalg.inv(s_matrix)@f_matrix)
-    
     min_index = np.argmin(eigenvalues)
     c_vec = eigenvectors[:,min_index].reshape((1,4))
     c_vec=normalize_vec(c_vec)
-    #print(np.sum(s_matrix*c_vec.reshape(-1,1)*c_vec.reshape(1,-1)))
+   
     # Get ground state energy
 
     a = 2*h_matrix*c_vec.reshape(-1,1)*c_vec.reshape(1,-1)
     a = np.sum(a)
-
     b = q_matrix*c_vec.reshape(1,-1,1,1)*c_vec.reshape(1,1,1,-1)\
                 *c_vec.reshape(-1,1,1,1)*c_vec.reshape(1,1,-1,1)
     b = np.sum(b)
-
     eg = a+b
-
     eg_vec = np.append(eg_vec, eg)
+    
+    print(i)
+    i += 1
+    eg_diff = np.abs(eg-eg_old)
+    eg_old = eg
+    print(eg_diff)
 
 
 print(eg_vec[-1])
@@ -109,5 +113,21 @@ print(eg_vec[-1])
 
 # %%
 
+# Eg plot and wavefunction for boolean
+fig, ax = plt.subplots()
+ax.set_xlabel('Iteration', fontsize=14)
+ax.set_ylabel('Energy (a.u.)', fontsize=14)
+ax.set_title('Convergence for 5 iterations',fontsize=16)
+ax.grid()
+ax.legend()
 plt.plot(eg_vec)
+#fig.savefig('convergence_5it.pdf')
+fig, ax = plt.subplots()
+ax.set_xlabel('Iteration', fontsize=14)
+ax.set_ylabel('Energy (a.u.)', fontsize=14)
+ax.set_title('Convergence for 5 iterations',fontsize=16)
+ax.grid()
+ax.legend()
+plt.plot(eg_vec)
+
 # %%

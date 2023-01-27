@@ -1,6 +1,11 @@
 # %%
 import numpy as np
 import matplotlib.pyplot as plt
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "Computer Modern"
+})
+
 
 # %%
 n_r = 10000
@@ -23,13 +28,14 @@ V_H_exact = 1/r - (1+1/r)*np.exp(-2*r)
 U_exact = V_H_exact*r - r/r_max
 
 plt.figure(figsize=(5,4))
-plt.plot(r,V_H_solve, label="numerical solution solve")
-plt.plot(r,V_H_exact, label="exact")
-plt.xlabel(r"$r \: / \:$atomic units")
-plt.ylabel(r"$V_H \: / \:$atomic units")
+plt.plot(r,V_H_exact, label="Exact Hartree-potential")
+plt.plot(r,V_H_solve, linestyle = 'dashed',label="Finite difference method")
+plt.xlabel("Radius (a.u.)")
+plt.ylabel("$V_H$ (a.u.)")
+plt.title("Potential comparison ")
 plt.ylim(0,1.25)
 plt.grid()
 plt.legend()
-plt.savefig("plots/task2.pdf")
+#plt.savefig("task2.pdf")
 
 # %%
