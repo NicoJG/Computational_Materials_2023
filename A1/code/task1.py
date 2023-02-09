@@ -3,8 +3,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 plt.rcParams.update({
     "text.usetex": True,
-    "font.family": "Computer Modern"
+    "font.family": "Computer Modern",
+    "font.size": 14
 })
+
+import os
+if os.path.basename(os.getcwd()) == "code":
+    os.chdir("..")
+    print("Changed working directory!")
 
 # %% 
 
@@ -129,10 +135,11 @@ ax.set_title('Convergence for 5 iterations',fontsize=16)
 ax.grid()
 ax.legend()
 plt.plot(eg_vec)
-#fig.savefig('convergence_5it.pdf')
+plt.tight_layout()
+fig.savefig('plots/task1_convergence_5it.pdf')
 
 # Wavefunction
-radie = np.linspace(0,4)
+radie = np.linspace(0,4,1000)
 wavefunc = wavefunction(alphas, c_vec, radie)*-1
 
 fig, ax = plt.subplots()
@@ -239,7 +246,7 @@ plt.plot(eg_vec50)
 #fig.savefig('convergence_50it.pdf')
 
 # Wavefunction
-radie = np.linspace(0,4)
+radie = np.linspace(0,4,1000)
 wavefunc50 = wavefunction(alphas, c_vec50, radie)*-1
 
 fig, ax = plt.subplots()
@@ -251,6 +258,7 @@ ax.grid()
 plt.plot(radie, wavefunc, label = '5 iterations')
 plt.plot(radie, wavefunc50, linestyle = 'dashed', label = '50 iterations')
 ax.legend()
-fig.savefig('wavefunc_comp.pdf')
+plt.tight_layout()
+fig.savefig('plots/task1_wavefunc_comp.pdf')
 
 # %%

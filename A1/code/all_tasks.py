@@ -6,13 +6,19 @@ from tqdm.auto import tqdm
 # For latex interpretation of the figures
 plt.rcParams.update({
     "text.usetex": True,
-    "font.family": "Computer Modern"
+    "font.family": "Computer Modern",
+    "font.size": 14.0
 })
 
 import os
 if os.path.basename(os.getcwd()) == "code":
     os.chdir("..")
     print("Changed working directory!")
+    
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "Computer Modern"
+})
     
 hartree_energy = 27.211386245988 # eV
 
@@ -62,6 +68,7 @@ V_H_exact = 1/r - (1+1/r)*np.exp(-2*r)
 # %%
 # Task 2 plotting
 
+plt.figure()
 plt.plot(r,V_H, label="Numerical solution")
 plt.plot(r,V_H_exact, "--", label="Exact ")
 plt.xlabel("Radius (a.u.)",fontsize=14)
@@ -70,7 +77,8 @@ plt.title("Potential comparison ",fontsize=16)
 plt.ylim(0,1.1)
 plt.grid()
 plt.legend()
-plt.savefig("Figures/task2/task2potential.pdf")
+plt.tight_layout()
+plt.savefig("plots/task2potential.pdf")
 #TODO: plot the difference to the exact potential
 
 # %%
@@ -102,6 +110,7 @@ def solve_kohn_sham_eq(r, total_potential):
 
 def calc_psi_from_u(r,u):
     mask = r!=0
+    #u /= np.trapz(u,r)
     psi = np.zeros_like(u)
     psi[mask] = u[mask]/(np.sqrt(4*np.pi)*r[mask])
     # normalize psi
@@ -139,7 +148,8 @@ plt.title("Comparison of numerical wave function for hydrogen",fontsize=16)
 plt.ylim(-0.1,0.7)
 plt.grid()
 plt.legend()
-plt.savefig("Figures/task3/task3_wavefunc.pdf")
+plt.tight_layout()
+plt.savefig("plots/task3_wavefunc.pdf")
 
 
 # %%
@@ -221,113 +231,160 @@ def solve_helium_kohn_sham_eq(r, u0, eps, n_max_iter=100,
 
 # %%
 # Task 4 calculations
-eps_kohn_sham = 1e-5 * hartree_energy # eV
-eps_r_max = 1e-5 * hartree_energy
-eps_dr = 1e-2
-n_max_iter1 = 20
-n_max_iter2 = 20
 
-# initial grid
-dr = 0.01
-r_min = 0.
-r_max = 2.
-r = np.arange(r_min, r_max+dr, dr) # so that r_max is included
+def calc_task456(task_i):
+    eps_kohn_sham = 1e-5 * hartree_energy # eV
+    eps_r_max = 1e-3 * hartree_energy # eV
+    eps_dr = 1e-3 * hartree_energy # eV
+    n_max_iter1 = 20
+    n_max_iter2 = 20
 
-include_exchange = True
-include_correlation = True
+    # initial grid
+    dr = 0.01
+    r_min = 0.
+    r_max = 2.
+    r = np.arange(r_min, r_max+dr, dr) # so that r_max is included
 
-# initially choose the hydrogen ground state
-u0 = 2*r*np.exp(-r)
+    if task_i == 4:
+        include_exchange = False
+        include_correlation = False
+    if task_i == 5:
+        include_exchange = True
+        include_correlation = False
+    if task_i == 6:
+        include_exchange = True
+        include_correlation = True
 
-E_arr, E0_arr, u_arr, i_max = solve_helium_kohn_sham_eq(r,u0, eps_kohn_sham, 
-                                include_exchange=include_exchange, 
-                                include_correlation=include_correlation)
-r_max_arr = [r_max]
-E_arr_arr = [E_arr]
-E0_arr_arr = [E0_arr]
-i_arr = [i_max]
-
-
-pbar = tqdm(range(n_max_iter1))
-for i in pbar:
-    r_max *= 1.5
-    r = np.arange(r_min, r_max+dr, dr)
-    n_r = len(r)
-    pbar.set_description(f"r_max = {r_max:.1f}; n_r = {n_r}")
+    # initially choose the hydrogen ground state
     u0 = 2*r*np.exp(-r)
-    E_arr, E0_arr, u_arr, i_max = solve_helium_kohn_sham_eq(r, u0, eps_kohn_sham, 
-                                include_exchange=include_exchange, 
-                                include_correlation=include_correlation)
-    r_max_arr.append(r_max)
-    E_arr_arr.append(E_arr)
-    E0_arr_arr.append(E0_arr)
-    i_arr.append(i_max)
-    if abs(E0_arr_arr[-1][-1]-E0_arr_arr[-2][-1]) < eps_r_max:
-        break
+
+    E_arr, E0_arr, u_arr, i_max = solve_helium_kohn_sham_eq(r,u0, eps_kohn_sham, 
+                                    include_exchange=include_exchange, 
+                                    include_correlation=include_correlation)
+    r_max_arr = [r_max]
+    E_arr_arr = [E_arr]
+    E0_arr_arr = [E0_arr]
+    i_arr = [i_max]
+
+
+    pbar = tqdm(range(n_max_iter1))
+    for i in pbar:
+        r_max *= 1.5
+        r = np.arange(r_min, r_max+dr, dr)
+        n_r = len(r)
+        pbar.set_description(f"r_max = {r_max:.1f}; n_r = {n_r}")
+        u0 = 2*r*np.exp(-r)
+        E_arr, E0_arr, u_arr, i_max = solve_helium_kohn_sham_eq(r, u0, eps_kohn_sham, 
+                                    include_exchange=include_exchange, 
+                                    include_correlation=include_correlation)
+        r_max_arr.append(r_max)
+        E_arr_arr.append(E_arr)
+        E0_arr_arr.append(E0_arr)
+        i_arr.append(i_max)
+        if abs(E0_arr_arr[-1][-1]-E0_arr_arr[-2][-1]) < eps_r_max:
+            break
+        
+    dr_arr = [dr]
+    pbar = tqdm(range(n_max_iter2))
+    for i in pbar:
+        dr *= 0.75
+        r = np.arange(r_min, r_max+dr, dr)
+        n_r = len(r)
+        pbar.set_description(f"dr = {dr:.5f}; n_r = {n_r}")
+        u0 = 2*r*np.exp(-r)
+        E_arr, E0_arr, u_arr, i_max = solve_helium_kohn_sham_eq(r, u0, eps_kohn_sham, 
+                                    include_exchange=include_exchange, 
+                                    include_correlation=include_correlation)
+        dr_arr.append(dr)
+        E_arr_arr.append(E_arr)
+        E0_arr_arr.append(E0_arr)
+        i_arr.append(i_arr)
+        if abs(E0_arr_arr[-1][-1]-E0_arr_arr[-2][-1]) < eps_dr:
+            break
     
-dr_arr = [dr]
-pbar = tqdm(range(n_max_iter2))
-for i in pbar:
-    dr *= 0.75
-    r = np.arange(r_min, r_max+dr, dr)
-    n_r = len(r)
-    pbar.set_description(f"dr = {dr:.5f}; n_r = {n_r}")
-    u0 = 2*r*np.exp(-r)
-    E_arr, E0_arr, u_arr, i_max = solve_helium_kohn_sham_eq(r, u0, eps_kohn_sham, 
-                                include_exchange=include_exchange, 
-                                include_correlation=include_correlation)
-    dr_arr.append(dr)
-    E_arr_arr.append(E_arr)
-    E0_arr_arr.append(E0_arr)
-    i_arr.append(i_arr)
-    if abs(E0_arr_arr[-1][-1]-E0_arr_arr[-2][-1]) < eps_dr:
-        break
+    E_arr = np.array([Es[-1] for Es in E_arr_arr])
+    E0_arr = np.array([Es[-1] for Es in E0_arr_arr])
+    
+    u = u_arr[-1]
+    
+    return E_arr, E0_arr, r_max_arr, dr_arr, u, r
     
 # %%
-# Task 4 plotting
-E_arr = np.array([Es[-1] for Es in E_arr_arr])
-E0_arr = np.array([Es[-1] for Es in E0_arr_arr])
+# Task 456 plotting
+def plot_task456_progression(task_i, E_arr, E0_arr, r_max_arr, dr_arr, u, r):
+    n_iter = len(E_arr)
+    n_iter_r_max = len(r_max_arr)
+    n_iter_dr = len(dr_arr)
+    
+    i_iter = np.arange(n_iter)
+    i_iter_r_max = np.arange(n_iter_r_max)
+    i_iter_dr = np.arange(n_iter_r_max-1,n_iter)
+    # plot E0 progression
+    plt.figure()
+    plt.plot(i_iter, E0_arr)
+    plt.axvline(n_iter_r_max-1, linestyle=":", color="k", alpha=0.5, label="$r_{max}$ is converged")
+    plt.axhline(E0_arr[-1], linestyle="--", color="k", alpha=0.5, label=f"$E0 = {E0_arr[-1]:.5f} \\: / \\:$a.u.")
+    plt.xlabel("procedure iteration",fontsize=14)
+    plt.ylabel(r"$E$ (a.u.)",fontsize=14)
+    plt.legend()
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig(f"plots/task{task_i}_E0_progression.pdf")
+    
+    fig, ax1 = plt.subplots(figsize=(5,4))
+    ax2 = ax1.twinx()
+    
+    ax1.plot(i_iter_r_max, r_max_arr, "C0")
+    ax1.plot(i_iter_dr, [r_max_arr[-1]]*n_iter_dr, "C0")
+    ax1.set_xlabel("procedure iteration",fontsize=14)
+    ax1.set_ylabel(r"$r_{max}$ (a.u.)")
+    ax1.grid()
+    ax1.tick_params(axis='y', labelcolor="C0")
+    
+    ax2.plot(i_iter_dr, dr_arr, "C1")
+    ax2.plot(i_iter_r_max, [dr_arr[0]]*n_iter_r_max, "C1")
+    ax2.axvline(len(r_max_arr)-1, linestyle=":", color="k", alpha=0.5, label="$r_{max}$ is converged")
+    ax2.legend()
+    ax2.set_xlabel("procedure iteration")
+    ax2.set_ylabel(r"$\Delta r$ (a.u.)")
+    ax2.grid()
+    ax2.tick_params(axis='y', labelcolor="C1")
+    
+    plt.tight_layout()
+    plt.savefig(f"plots/task{task_i}_r_progression.pdf")
+    return
 
-# plot E progression
-plt.figure(figsize=(5,4))
-plt.plot(E0_arr)
-plt.axvline(len(r_max_arr)-1, linestyle=":", color="k", alpha=0.5, label="$r_{max}$ is converged")
-plt.axhline(E0_arr[-1], linestyle="--", color="k", alpha=0.5, label=f"$E_0 = {E0_arr[-1]:.5f} \\: / \\:$a.u.")
-plt.xlabel("run index")
-plt.ylabel(r"$E_0 \: / \:$a.u.")
-plt.legend()
-plt.show()
+# %%
+# Task 456 calculation and plotting
+E_arr, E0_arr, r_max_arr, dr_arr, u4, r4 = calc_task456(4)
+plot_task456_progression(4, E_arr, E0_arr, r_max_arr, dr_arr, u4, r4)
+E_4, E0_4 = E_arr[-1], E0_arr[-1]
 
-# plot E progression
-plt.figure(figsize=(5,4))
-plt.plot(E_arr)
-plt.axvline(len(r_max_arr)-1, linestyle=":", color="k", alpha=0.5, label="$r_{max}$ is converged")
-plt.axhline(E_arr[-1], linestyle="--", color="k", alpha=0.5, label=f"$E = {E_arr[-1]:.5f} \\: / \\:$a.u.")
-plt.xlabel("run index")
-plt.ylabel(r"$E \: / \:$a.u.")
-plt.legend()
-plt.show()
+E_arr, E0_arr, r_max_arr, dr_arr, u5, r5 = calc_task456(5)
+plot_task456_progression(5, E_arr, E0_arr, r_max_arr, dr_arr, u5, r5)
+E_5, E0_5 = E_arr[-1], E0_arr[-1]
 
-plt.figure(figsize=(5,4))
-plt.plot(r_max_arr)
-plt.xlabel("run index")
-plt.ylabel(r"$r_{max} \: / \:$a.u.")
-plt.show()
-
-plt.figure(figsize=(5,4))
-plt.plot(np.arange(len(r_max_arr)-1,len(E_arr)), dr_arr)
-plt.xlabel("run index")
-plt.ylabel(r"$\Delta r \: / \:$a.u.")
-plt.show()
+E_arr, E0_arr, r_max_arr, dr_arr, u6, r6 = calc_task456(6)
+plot_task456_progression(6, E_arr, E0_arr, r_max_arr, dr_arr, u6, r6)
+E_6, E0_6 = E_arr[-1], E0_arr[-1]
 
 # plot the final wavefunction
-u = u_arr[-1]
-psi = calc_psi_from_u(r,u)
-
-plt.figure(figsize=(5,4))
-plt.plot(r,psi)
-plt.xlabel(r"$r \: / \:$a.u.")
-plt.ylabel(r"$\Psi \: / \:$a.u.")
-plt.show()
+psi4 = calc_psi_from_u(r4,u4)
+psi5 = calc_psi_from_u(r5,u5)
+psi6 = calc_psi_from_u(r6,u6)
 
 # %%
+plt.figure()
+plt.plot(r4,psi4, label="Task 4")
+plt.plot(r5,psi5, label="Task 5")
+plt.plot(r6,psi6, "--", label="Task 6")
+plt.xlabel(r"$r$ (a.u.)")
+plt.ylabel(r"$\Psi$ (a.u.)")
+plt.xlim(0,4)
+plt.legend()
+plt.grid()
+plt.tight_layout()
+plt.savefig("plots/task456_wavefunction.pdf")
+
+# %%
+
