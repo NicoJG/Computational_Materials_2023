@@ -37,7 +37,7 @@ for i in range(2):
     plt.plot(r,psi, label=f"Numerical $\Psi_{i}$  ")
 plt.xlabel("Radius (a.u.)")
 plt.ylabel("$\Psi(r)$ (a.u.)")
-plt.title("Comparison of numerical wavefucntion for hydrogen")
+plt.title("Comparison of numerical wavefunction for hydrogen")
 plt.ylim(-0.1,0.7)
 plt.grid()
 plt.legend()
