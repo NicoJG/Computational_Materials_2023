@@ -354,7 +354,6 @@ def plot_task456_progression(task_i, E_arr, E0_arr, r_max_arr, dr_arr, u, r):
     plt.plot(r_max_arr,E0_arr[i_iter_r_max])
     plt.xlabel(r"$r_\mathrm{max}$ (a.u.)",fontsize=14)
     plt.ylabel(r"$E$ (a.u.)",fontsize=14)
-    plt.legend()
     plt.grid()
     plt.tight_layout()
     plt.savefig(f"plots/task{task_i}_E0_rmax.pdf")
@@ -363,7 +362,6 @@ def plot_task456_progression(task_i, E_arr, E0_arr, r_max_arr, dr_arr, u, r):
     plt.plot(dr_arr,E0_arr[i_iter_dr])
     plt.xlabel(r"$\Delta r$ (a.u.)",fontsize=14)
     plt.ylabel(r"$E$ (a.u.)",fontsize=14)
-    plt.legend()
     plt.grid()
     plt.tight_layout()
     plt.savefig(f"plots/task{task_i}_E0_dr.pdf")
@@ -437,5 +435,9 @@ print(f"{E0_6 = }")
 print(f"{E_4 = }")
 print(f"{E_5 = }")
 print(f"{E_6 = }")
+
+# %%
+print(f"{r_max_arr[-1] = }")
+print(f"{dr_arr[-1] = }")
 
 # %%
