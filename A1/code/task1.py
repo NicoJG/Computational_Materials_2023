@@ -249,6 +249,9 @@ plt.plot(eg_vec50)
 radie = np.linspace(0,4,1000)
 wavefunc50 = wavefunction(alphas, c_vec50, radie)*-1
 
+u = wavefunc*np.sqrt(4*np.pi)*radie
+u50 = wavefunc50*np.sqrt(4*np.pi)*radie
+
 fig, ax = plt.subplots()
 ax.set_xlabel('Radius (a.u.)', fontsize=14)
 ax.set_ylabel('$\Psi(r)$ (a.u.)', fontsize=14)
@@ -260,5 +263,21 @@ plt.plot(radie, wavefunc50, linestyle = 'dashed', label = '50 iterations')
 ax.legend()
 plt.tight_layout()
 fig.savefig('plots/task1_wavefunc_comp.pdf')
+
+fig, ax = plt.subplots()
+ax.set_xlabel('Radius (a.u.)', fontsize=14)
+ax.set_ylabel('$u(r)$ (a.u.)', fontsize=14)
+ax.set_title('$u(r)$ for different iterations',fontsize=16)
+ax.grid()
+
+plt.plot(radie, u, label = '5 iterations')
+plt.plot(radie, u50, linestyle = 'dashed', label = '50 iterations')
+ax.legend()
+plt.tight_layout()
+fig.savefig('plots/task1_wavefunc_comp_u.pdf')
+
+# %%
+data = list(zip(radie, u50))
+np.savetxt('plots/task1.csv', data, header='r,u', comments='', fmt='%1.10f,%1.10f')
 
 # %%

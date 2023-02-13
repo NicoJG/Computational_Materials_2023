@@ -95,16 +95,26 @@ def solve_kohn_sham_eq(r, total_potential):
         + np.diag(1*np.ones(n_r-1), -1))
 
     M = -0.5*A + np.diag(total_potential,0) 
-    M[0,0] = 1
-    M[0,1] = 0
-    M[-1,-1] = 1
-    M[-1,-2] = 0
+    M[0,:] = 0
+    M[-1,:] = 0
+    M[:,0] = 0
+    M[:,-1] = 0
     
     E, u = np.linalg.eigh(M)
-    E, u = E[1], u[:,1]
+    # sort by lowest eigenvalue
+    E = E[np.argsort(E)]
+    u = u[:,np.argsort(E)]
+    E, u = E[0], u[:,0]
+    
+    # boundary conditions
+    u[0] = 0
+    u[-1] = 0
     
     # normalize u
-    u /= -np.sqrt(np.trapz(u**2, r))
+    u /= np.sqrt(np.trapz(u**2, r))
+    # make it positive
+    if np.trapz(u,r)<0:
+        u *= -1
     
     return E, u
 
@@ -132,20 +142,23 @@ potential = -1/r
 
 E, u = solve_kohn_sham_eq(r, potential)
 
-psi = calc_psi_from_u(r,u)
+#psi = calc_psi_from_u(r,u)
 E0 = E
 E0_exact= -13.6/hartree_energy
 psi_exact = 1/np.sqrt(np.pi)*np.exp(-r)
+u_exact = np.sqrt(4*np.pi)*r*psi_exact
+
+print(f"{E0 = }")
 
 # %%
 # Task 3 plotting
 plt.figure()
-plt.plot(r,psi_exact, label="$\Psi_{exact}$  ")
-plt.plot(r,psi, label="$\Psi_{numerical}$ ")
+plt.plot(r,u_exact, label="$u_{exact}$  ")
+plt.plot(r,u, '--', label="$u_{numerical}$ ")
 plt.xlabel("Radius (a.u.)",fontsize=14)
-plt.ylabel("$\Psi(r)$ (a.u.)",fontsize=14)
-plt.title("Comparison of numerical wave function for hydrogen",fontsize=16)
-plt.ylim(-0.1,0.7)
+plt.ylabel("$u(r)$ (a.u.)",fontsize=14)
+plt.title("Radial wave functions for hydrogen",fontsize=16)
+#plt.ylim(-0.1,0.7)
 plt.grid()
 plt.legend()
 plt.tight_layout()
@@ -162,29 +175,32 @@ def calc_E0_from_eigenvalue(E,u,r,V_H, V_xc, eps_xc):
 
 # Task 5
 def calc_exchange_potential(r,u):
-    n =  u**2/(2*np.pi)
+    n =  u**2/(2*np.pi*r**2)
+    n[0] = 0
     eps_x = -3/4*(3*n/np.pi)**(1/3)
-    V_x = (3*n/np.pi)**(1/3)
-    V_x = eps_x + n*np.gradient(eps_x,n)
+    V_x = -(3*n/np.pi)**(1/3)
+    #V_x = eps_x + n*np.gradient(eps_x,n)
     return eps_x, V_x
 
 # Task 6
 def calc_correlation_potential(r,u):
     eps_c = np.zeros_like(r)
-    n =  u**2/(2*np.pi)
+    n =  u**2/(2*np.pi*r**2)
+    n[0] = 0
     r_s = (3/(4*np.pi*n))**(1/3)
 
     A = 0.0311
     B  = -0.048
     C = 0.0020
-    D = -0.116
+    D = -0.0116
     gamma = -0.1423
     beta1 = 1.0529
     beta2 = 0.3334
 
     mask = r_s >= 1
     eps_c[mask] = gamma/(1+beta1*np.sqrt(r_s[mask])+beta2*r_s[mask])
-    eps_c[~mask] = A*np.log(r_s[~mask]) + B + C*r_s[~mask]*np.log(r_s[~mask]) + D*r_s[~mask]
+    eps_c[~mask] = A*np.log(r_s[~mask]) + B \
+        + C*r_s[~mask]*np.log(r_s[~mask]) + D*r_s[~mask]
     
     V_c = eps_c + n*np.gradient(eps_c,n)
     
@@ -204,14 +220,17 @@ def solve_helium_kohn_sham_eq(r, u0, eps, n_max_iter=100,
             V_H = 2*V_sH
         else:
             V_H = V_sH
+            
         if include_exchange:
             eps_x, V_x = calc_exchange_potential(r,u)
         else:
             eps_x, V_x = 0, 0
+            
         if include_correlation:
             eps_c, V_c = calc_correlation_potential(r,u)
         else:
             eps_c, V_c = 0, 0
+            
         V_xc = V_x + V_c
         eps_xc = eps_x + eps_c
 
@@ -234,13 +253,13 @@ def solve_helium_kohn_sham_eq(r, u0, eps, n_max_iter=100,
 
 def calc_task456(task_i):
     eps_kohn_sham = 1e-5 * hartree_energy # eV
-    eps_r_max = 1e-3 * hartree_energy # eV
-    eps_dr = 1e-3 * hartree_energy # eV
+    eps_r_max = 1e-4 * hartree_energy # eV
+    eps_dr = 1e-4 * hartree_energy # eV
     n_max_iter1 = 20
     n_max_iter2 = 20
 
     # initial grid
-    dr = 0.01
+    dr = 0.1
     r_min = 0.
     r_max = 2.
     r = np.arange(r_min, r_max+dr, dr) # so that r_max is included
@@ -281,7 +300,7 @@ def calc_task456(task_i):
         E_arr_arr.append(E_arr)
         E0_arr_arr.append(E0_arr)
         i_arr.append(i_max)
-        if abs(E0_arr_arr[-1][-1]-E0_arr_arr[-2][-1]) < eps_r_max:
+        if abs(E0_arr_arr[-1][-1]* hartree_energy-E0_arr_arr[-2][-1]* hartree_energy) < eps_r_max:
             break
         
     dr_arr = [dr]
@@ -299,7 +318,7 @@ def calc_task456(task_i):
         E_arr_arr.append(E_arr)
         E0_arr_arr.append(E0_arr)
         i_arr.append(i_arr)
-        if abs(E0_arr_arr[-1][-1]-E0_arr_arr[-2][-1]) < eps_dr:
+        if abs(E0_arr_arr[-1][-1]* hartree_energy-E0_arr_arr[-2][-1]* hartree_energy) < eps_dr:
             break
     
     E_arr = np.array([Es[-1] for Es in E_arr_arr])
@@ -331,6 +350,22 @@ def plot_task456_progression(task_i, E_arr, E0_arr, r_max_arr, dr_arr, u, r):
     plt.tight_layout()
     plt.savefig(f"plots/task{task_i}_E0_progression.pdf")
     
+    plt.figure()
+    plt.plot(r_max_arr,E0_arr[i_iter_r_max])
+    plt.xlabel(r"$r_\mathrm{max}$ (a.u.)",fontsize=14)
+    plt.ylabel(r"$E$ (a.u.)",fontsize=14)
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig(f"plots/task{task_i}_E0_rmax.pdf")
+    
+    plt.figure()
+    plt.plot(dr_arr,E0_arr[i_iter_dr])
+    plt.xlabel(r"$\Delta r$ (a.u.)",fontsize=14)
+    plt.ylabel(r"$E$ (a.u.)",fontsize=14)
+    plt.grid()
+    plt.tight_layout()
+    plt.savefig(f"plots/task{task_i}_E0_dr.pdf")
+    
     fig, ax1 = plt.subplots(figsize=(5,4))
     ax2 = ax1.twinx()
     
@@ -355,36 +390,54 @@ def plot_task456_progression(task_i, E_arr, E0_arr, r_max_arr, dr_arr, u, r):
     return
 
 # %%
-# Task 456 calculation and plotting
-E_arr, E0_arr, r_max_arr, dr_arr, u4, r4 = calc_task456(4)
-plot_task456_progression(4, E_arr, E0_arr, r_max_arr, dr_arr, u4, r4)
+# Task 4 calculation and plotting
+eps_kohn_sham = 1e-5 * hartree_energy # eV
+E_arr, E0_arr, r_max_arr, dr_arr, u4, r = calc_task456(4)
+plot_task456_progression(4, E_arr, E0_arr, r_max_arr, dr_arr, u4, r)
 E_4, E0_4 = E_arr[-1], E0_arr[-1]
 
-E_arr, E0_arr, r_max_arr, dr_arr, u5, r5 = calc_task456(5)
-plot_task456_progression(5, E_arr, E0_arr, r_max_arr, dr_arr, u5, r5)
+# Task 5 calculation
+E_arr, E0_arr, u_arr, i_max = solve_helium_kohn_sham_eq(r, u4, eps_kohn_sham, 
+                                include_exchange=True, 
+                                include_correlation=False)
+u5 = u_arr[-1]
 E_5, E0_5 = E_arr[-1], E0_arr[-1]
 
-E_arr, E0_arr, r_max_arr, dr_arr, u6, r6 = calc_task456(6)
-plot_task456_progression(6, E_arr, E0_arr, r_max_arr, dr_arr, u6, r6)
+# Task 6 calculation
+E_arr, E0_arr, u_arr, i_max = solve_helium_kohn_sham_eq(r, u5, eps_kohn_sham, 
+                                include_exchange=True, 
+                                include_correlation=True)
+u6 = u_arr[-1]
 E_6, E0_6 = E_arr[-1], E0_arr[-1]
 
-# plot the final wavefunction
-psi4 = calc_psi_from_u(r4,u4)
-psi5 = calc_psi_from_u(r5,u5)
-psi6 = calc_psi_from_u(r6,u6)
+# %%
+r1, u1 = np.genfromtxt("plots/task1.csv", delimiter=",", unpack=True)
 
 # %%
-plt.figure()
-plt.plot(r4,psi4, label="Task 4")
-plt.plot(r5,psi5, label="Task 5")
-plt.plot(r6,psi6, "--", label="Task 6")
+plt.figure(figsize=(8,6))
+plt.plot(r1,u1, label="Task 1")
+plt.plot(r,u4, "--", label="Task 4")
+plt.plot(r,u5, label="Task 5")
+plt.plot(r,u6, "--", label="Task 6")
 plt.xlabel(r"$r$ (a.u.)")
-plt.ylabel(r"$\Psi$ (a.u.)")
-plt.xlim(0,4)
+plt.ylabel(r"$u$ (a.u.)")
+plt.xlim(-0.1,4.1)
 plt.legend()
 plt.grid()
 plt.tight_layout()
 plt.savefig("plots/task456_wavefunction.pdf")
 
 # %%
+print(f"{E0_4 = }")
+print(f"{E0_5 = }")
+print(f"{E0_6 = }")
+# %%
+print(f"{E_4 = }")
+print(f"{E_5 = }")
+print(f"{E_6 = }")
 
+# %%
+print(f"{r_max_arr[-1] = }")
+print(f"{dr_arr[-1] = }")
+
+# %%
