@@ -3,7 +3,7 @@ from gpaw import GPAW
 from ase.md.npt import NPT
 from ase.io import Trajectory
 
-atoms = read('someStartConfiguration.xyz')
+atoms = read('na_inserted.xyz')
 
 calc = GPAW(mode='lcao',
             xc='PBE',
@@ -18,7 +18,7 @@ atoms.set_calculator(calc)
 from ase.units import fs, kB
 dyn = NPT(atoms,
         temperature_K=350,
-        timestep=1*fs, # This has to be changed! TODO
+        timestep=0.5*fs, # Water scale timestep
         ttime=20*fs, # Dont forget the fs!
         pfactor=None,
         externalstress=0, # We dont use the barostat, but...
@@ -27,4 +27,4 @@ dyn = NPT(atoms,
 
 trajectory = Trajectory('someDynamics.traj', 'w', atoms)
 dyn.attach(trajectory.write, interval=1) # Write the current positions etc. to file each timestep
-dyn.run(10) # Run 10 steps of MD simulation
+dyn.run(4000) # Run 10 steps of MD simulation
