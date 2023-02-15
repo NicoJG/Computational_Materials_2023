@@ -125,18 +125,17 @@ g_given, first_minimum_idx_given, corr_number_given = calc_rdf("../NaCluster24.t
 # Plot the RDF
 plt.figure()
 
-plt.hist(bin_centers[:first_minimum_idx_our],bin_edges[:first_minimum_idx_our+1],weights=g_our[:first_minimum_idx_our], histtype="step", edgecolor="C0", alpha=0.3, hatch="////", label=f"first solvation shell\n(integral = {corr_number_our:.2f})")
+plt.hist(bin_centers[:first_minimum_idx_our],bin_edges[:first_minimum_idx_our+1],weights=g_our[:first_minimum_idx_our], histtype="step", edgecolor="C0", alpha=0.3, hatch="////", label=f"First solvation shell, our simulation \n(integral = {corr_number_our:.2f})")
 plt.hist(bin_centers,bin_edges,weights=g_our, histtype="step", color="C0")
 
-plt.hist(bin_centers[:first_minimum_idx_given],bin_edges[:first_minimum_idx_given+1],weights=g_given[:first_minimum_idx_given], histtype="step", edgecolor="C1", alpha=0.3, hatch=r"\\\\", label=f"first solvation shell\n(integral = {corr_number_given:.2f})")
+plt.hist(bin_centers[:first_minimum_idx_given],bin_edges[:first_minimum_idx_given+1],weights=g_given[:first_minimum_idx_given], histtype="step", edgecolor="C1", alpha=0.3, hatch=r"\\\\", label=f"First solvation shell, given simulation \n(integral = {corr_number_given:.2f})")
 plt.hist(bin_centers,bin_edges,weights=g_given, histtype="step", color="C1")
 
 plt.xlim(2,6)
 plt.ylim(bottom=0)
-plt.xlabel("radial distance (Å)")
-plt.ylabel("radial distribution function")
+plt.xlabel("Radial distance (Å)")
+plt.ylabel("Radial distribution function")
 plt.legend()
 plt.tight_layout()
-plt.show()
-
+plt.savefig("../plots/Plottask2a3.pdf")
 # %%
