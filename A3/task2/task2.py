@@ -13,27 +13,6 @@ plt.rcParams.update({
 from ase.io import read, Trajectory
 
 # %%
-# from ase.geometry.analysis import Analysis
-
-# nbins = 100
-# rdf_sum = np.zeros(nbins)
-
-# trajectory = Trajectory("../NaCluster24.traj")[6000:]
-
-# for atoms in tqdm(trajectory):
-#     ana = Analysis(atoms)
-#     rdf,dist = ana.get_rdf(rmax=4.4, nbins=nbins,return_dists=True, elements="O")[0]
-#     rdf_sum += rdf
-    
-# # %%
-# plt.plot(dist,rdf_sum/8000)
-# plt.show()
-
-# first_minimum_idx = argrelextrema(rdf_sum, np.less, order=4)[0][0]
-# print("first solvation shell integral (ase rdf): ",np.sum(rdf_sum[:first_minimum_idx]/8000)*np.diff(dist)[0])
-
-
-# %%
 # Calculate the RDF
 from ase.geometry import wrap_positions
 nbins = 200
@@ -72,8 +51,6 @@ def calc_rdf_of_timestep(atoms):
     
     # calculate the radial distribution function
     rho = bin_counts.sum()/(rmax**3*np.pi*4/3)
-    #rho = 24/cell.volume
-    
     rho_local = bin_counts/(4*np.pi*bin_width*bin_centers**2)
     g = rho_local/rho
     
@@ -138,4 +115,5 @@ plt.ylabel("Radial distribution function")
 plt.legend()
 plt.tight_layout()
 plt.savefig("../plots/Plottask2a3.pdf")
+
 # %%
