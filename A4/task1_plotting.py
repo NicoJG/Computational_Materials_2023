@@ -7,9 +7,9 @@ from shutil import which
 if which("latexmk") is not None:
     plt.rcParams.update({
         "text.usetex": True,
-        "font.family": "Computer Modern",
-        "font.size": 14.0
+        "font.family": "Computer Modern"
     })
+plt.rcParams.update({"font.size":14.0})
 
 # %%
 a0, E_Au, E_Pt, E_Rh = np.genfromtxt("task1output/task1_energies.csv", unpack=True, delimiter=",")
@@ -39,7 +39,7 @@ for i,element in enumerate(["Au","Pt","Rh"]):
 
 plt.xlabel("lattice parameter (Å)")
 plt.ylabel("energy (eV)")
-plt.legend(title=rf"$\Delta a_0 = {da0:.3f}$ Å")
+plt.legend(title=rf"$\Delta a_0 = {da0:.5f}$ Å")
 plt.grid()
 plt.tight_layout()
 plt.savefig(f"plots/task1_energy_lattice_parameter.pdf")
