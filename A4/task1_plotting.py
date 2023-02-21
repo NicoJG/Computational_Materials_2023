@@ -14,6 +14,8 @@ if which("latexmk") is not None:
 # %%
 a0, E_Au, E_Pt, E_Rh = np.genfromtxt("task1output/task1_energies.csv", unpack=True, delimiter=",")
 
+da0 = a0[1] - a0[0]
+
 E = {"Au":E_Au,"Pt":E_Pt,"Rh":E_Rh}
 
 idx_min_Au = np.argmin(E_Au)
@@ -37,7 +39,7 @@ for i,element in enumerate(["Au","Pt","Rh"]):
 
 plt.xlabel("lattice parameter (Å)")
 plt.ylabel("energy (eV)")
-plt.legend()
+plt.legend(title=rf"$\Delta a_0 = {da0:.3f}$ Å")
 plt.grid()
 plt.tight_layout()
 plt.savefig(f"plots/task1_energy_lattice_parameter.pdf")
