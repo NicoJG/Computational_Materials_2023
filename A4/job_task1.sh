@@ -3,7 +3,7 @@
 #SBATCH -J A4Task1 # Name of the job
 #SBATCH -N 1 # Use 1 node
 #SBATCH -n 24 #
-#SBATCH -t 00:10:00 # Maximum time
+#SBATCH -t 01:00:00 # Maximum time
 #SBATCH -o task1output/std.out # stdout goes to this file
 #SBATCH -e task1output/err.out # stderr goes to this file
 
