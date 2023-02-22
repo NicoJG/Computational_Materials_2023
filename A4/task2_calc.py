@@ -16,10 +16,9 @@ E_at = {
     "Rh": -1.128
 }
 
-E_coh = {E_at[elmt] - 0.5*E_bulk[elmt] for elmt in ["Au","Pt","Rh"]}
-
 for elmt in ["Au", "Pt", "Rh"]:
-    E_coh = E_at[elmt] - 0.5*E_bulk[elmt]
+    #E_coh = E_at[elmt] - 0.5*E_bulk[elmt]
+    E_coh = E_at[elmt] - E_bulk[elmt]
     print(f"Cohesive energy for {elmt}: {E_coh:.3f} eV")
 
 
