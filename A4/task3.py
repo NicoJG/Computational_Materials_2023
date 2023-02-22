@@ -23,6 +23,7 @@ a0 = {
 
 for elmt in tqdm(["Au", "Pt", "Rh"], disable=(world.rank!=0)):
     slab = fcc111(elmt, a=a0[elmt], size=(3, 3, 3), vacuum=6.0)
+    slab.pbc = True
 
     slab.calc = GPAW(xc = 'PBE',
                     mode=PW(450),

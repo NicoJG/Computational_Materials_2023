@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #SBATCH -A C3SE2023-2-2 # Project
-#SBATCH -J A4Task1 # Name of the job
+#SBATCH -J A4Task3 # Name of the job
 #SBATCH -N 1 # Use 1 node
-#SBATCH -n 24 #
+#SBATCH -n 1 #
 #SBATCH -t 01:00:00 # Maximum time
 #SBATCH -o task3output/std.out # stdout goes to this file
 #SBATCH -e task3output/err.out # stderr goes to this file
