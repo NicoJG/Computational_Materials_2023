@@ -2,7 +2,7 @@
 #SBATCH -A C3SE2023-2-2 # Project
 #SBATCH -J A4Task4 # Name of the job
 #SBATCH -N 1 # Use 1 node
-#SBATCH -n 24 #
+#SBATCH -n 8 #
 #SBATCH -t 01:00:00 # Maximum time
 #SBATCH -o task4output/std.out # stdout goes to this file
 #SBATCH -e task4output/err.out # stderr goes to this file
