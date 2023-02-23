@@ -5,9 +5,11 @@
 
 from ase.build import fcc111
 from gpaw import GPAW, PW
-from ase.units import eV
+from ase.units import eV,J,m
 from ase.parallel import world,parprint
 from tqdm.auto import tqdm
+
+mJ = 10**(-3) * J
 
 E_bulk = {
     "Au": -3.146,
@@ -36,5 +38,5 @@ for elmt in tqdm(["Au", "Pt", "Rh"], disable=(world.rank!=0)):
 
     parprint(f"Area ({elmt}): {area:.5f} Å")
     parprint(f"Slab Energy ({elmt}): {E_surface:.5f} eV")
-    parprint(f"Surface Energy ({elmt}): {gamma:.5f} eV")
-
+    parprint(f"Surface Energy ({elmt}): {gamma:.5f} eV/Å^2")
+    parprint(f"Surface Energy ({elmt}): {gamma*m**2/mJ:.5f} mJ/m^2")
