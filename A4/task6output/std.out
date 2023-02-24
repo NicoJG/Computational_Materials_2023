@@ -3,3 +3,11 @@ Energy of Au+O: -82.87546 eV
 Start with Pt+O (current runtime: 644.3875370025635 seconds)
 Energy of Pt+O: -167.26736 eV
 Start with Rh+O (current runtime: 1862.654464006424 seconds)
+Energy of Rh+O: -188.95676 eV
+Start with Au+CO (current runtime: 3546.57151556015 seconds)
+Energy of Au+CO: -93.17067 eV
+Start with Pt+CO (current runtime: 5581.950434207916 seconds)
+Energy of Pt+CO: -177.65529 eV
+Start with Rh+CO (current runtime: 7389.831480026245 seconds)
+Energy of Rh+CO: -198.76025 eV
+Runtime: 10999.125291109085 seconds
