@@ -23,15 +23,16 @@ combinations = [("Au","O"),("Pt","O"),("Rh","O"),
                 ("Au","CO"),("Pt","CO"),("Rh","CO")]
 
 for metal,adsorbate in tqdm(combinations, disable=(world.rank!=0)):
+    parprint(f"Start with {metal}+{adsorbate} (current runtime: {time.time()-start_time} seconds)")
     atoms = fcc111(metal, a=a0[metal], size=(3, 3, 3), vacuum=6.0)
     atoms.pbc = True
     
     fixed_idxs = list(range(len(atoms)))
     
     if adsorbate == "O":
-        add_adsorbate(atoms, "O", height=2.0, position="fcc")
+        add_adsorbate(atoms, "O", height=1.2, position="fcc")
     elif adsorbate == "CO":
-        add_adsorbate(atoms, molecule("CO"), height=2.0, position="top")
+        add_adsorbate(atoms, molecule("CO"), height=3.15, position="ontop")
     
     # Constrain all atoms except the adsorbate:
     atoms.constraints = [FixAtoms(indices=fixed_idxs)]
@@ -40,7 +41,7 @@ for metal,adsorbate in tqdm(combinations, disable=(world.rank!=0)):
     
     atoms.calc = GPAW(xc = 'PBE',
                     mode=PW(450),
-                    kpts =(12,12,12),
+                    kpts =(4,4,1),
                     spinpol=True,
                     txt = f"task6output/gpaw_output_{metal}_{adsorbate}.txt")
     
