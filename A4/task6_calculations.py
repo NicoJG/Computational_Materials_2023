@@ -25,7 +25,7 @@ for metal in metals:
 
     E_ads_O = r[f"E_ads_{metal}_O"]
     E_ads_CO = r[f"E_ads_{metal}_CO"]
-    E_a = -0.3*(E_ads_O+E_ads_CO)+0.22
+    E_a = +0.3*(E_ads_O+E_ads_CO)+0.22
 
     r[f"E_a_{metal}"] = E_a
     print(f"E_a_{metal} = {E_a:.3f} eV")
