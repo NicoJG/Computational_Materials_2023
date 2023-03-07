@@ -4,14 +4,13 @@ from gpaw import GPAW, PW
 from ase.units import eV
 from ase.parallel import world,parprint
 
-magmom = {"O2":[1.7,1.7], "CO":[2.5,1.7]}
-bond_lengths = {"O2":1.16, "CO":1.43}
+import json
+
+with open("results.json", "r") as file:
+    results = json.load(file)
 
 for molecule_str in ["O2","CO"]:
-    atoms = Atoms(molecule, [(0, 0, 0), (1.2, 0, 0)])
-    atoms.set_cell([12.0,12.0,12.0])
-    atoms.set_initial_magnetic_moments(magmom[molecule_str])
-    atoms.center()
+    atoms = molecule(molecule_str, vacuum=6.0)
     atoms.pbc = True
 
     atoms.calc = GPAW(xc = 'PBE',
@@ -22,4 +21,9 @@ for molecule_str in ["O2","CO"]:
 
     E = atoms.get_potential_energy()*eV
 
+    results[f"E_mol_{molecule_str}"] = E
     parprint(f"Energy of {molecule_str}: {E:.5f} eV")
+
+
+with open("results.json",'w') as json_file:
+    json.dump(results, json_file, indent=4)
