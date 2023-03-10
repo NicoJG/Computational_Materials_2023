@@ -114,7 +114,7 @@ plt.figure(figsize=(8,6))
 for i,metal in enumerate(["Au","Pt","Rh"]):
     r_max = results[f"r_3_max_{metal}[mol Ang^-2 s^-1]"]
     T_max = results[f"T(r_3_max_{metal})[K]"]
-    plt.plot(T, r_3_dict[metal], fr"C{i}-", label=f"{metal} ({T_max:.0f} K, {r_max:.3e})")
+    plt.plot(T, r_3_dict[metal], fr"C{i}-", label=f"{metal} ({T_max:.0f} K, {r_max:.3e} mol $\mathrm{{m}}^{{-2}}$ $\mathrm{{s}}^{{-1}}$)")
     plt.plot(T_max, r_max, f"C{i}x")
 plt.ylim(bottom=r_3_dict["Au"].min()*100, top=r_3_dict["Pt"].max()*10)
 plt.yscale("log")
